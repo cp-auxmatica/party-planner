@@ -68,9 +68,9 @@
         </header>
 
         <!-- Sidebar and Main Content -->
-        <main class="grid lg:grid-cols-[minmax(300px,1fr)_3fr] gap-6">
+        <main id="main-view" class="grid lg:grid-cols-[minmax(300px,1fr)_3fr] gap-6">
             <!-- Sidebar / Controls -->
-            <div class="space-y-6">
+            <div id="sidebar" class="space-y-6">
                 <!-- My Parties -->
                 <div class="bg-white rounded-xl shadow-lg p-6">
                     <div class="flex justify-between items-center mb-4">
@@ -117,7 +117,7 @@
             </div>
 
             <!-- Calendar View -->
-            <div id="calendarBlock" class="hidden">
+            <div id="calendarBlock" class="hidden col-span-2">
                 <div class="bg-white rounded-xl shadow-lg p-6">
                     <div class="flex justify-between items-center mb-4">
                         <button id="calPrev" class="flex items-center justify-center gap-2 px-3 py-1 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm">
@@ -128,13 +128,16 @@
                         <div id="calTitle" class="text-xl font-semibold"></div>
                         <button id="calNext" class="flex items-center justify-center gap-2 px-3 py-1 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-right">
-                                <path d="m9 18 6-6-6-6"/>
+                                <path d="m9 18-6-6-6-6"/>
                             </svg>
                         </button>
                     </div>
                     <div id="calGrid" class="grid grid-cols-7 gap-2 text-center text-sm"></div>
                 </div>
             </div>
+            
+            <!-- Party Details Page (starts hidden) -->
+            <div id="party-details-page" class="hidden lg:col-span-2 space-y-6"></div>
         </main>
     </div>
 
@@ -362,8 +365,7 @@
                         <form id="inviteePicker" class="flex flex-wrap items-end gap-2">
                             <div class="flex-1 min-w-[150px]">
                                 <label class="block text-sm font-medium text-slate-600 mb-1">Pick a contact</label>
-                                <select id="invContact" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"></select>
-                            </div>
+                                <select id="invContact" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"></select></div>
                             <button id="btnAddInvitee" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white bg-slate-800 hover:bg-slate-900 transition-colors shadow-md" type="button">Add</button>
                             <button id="btnOpenContactModal" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm" type="button">New Contact</button>
                         </form>
@@ -642,25 +644,18 @@
             }
 
             async function loadInitialData() {
-                // Ensure Firebase is initialized and user is authenticated before calling Data.get
-                if (!db || !userId) {
-                    // It is possible this is called before onAuthStateChanged completes.
-                    // Instead of failing, we will let the listeners handle it.
-                    return;
-                }
+                if (!db || !userId) return;
                 state.contacts = await Data.get('contacts');
                 state.households = await Data.get('households');
                 state.parties = await Data.get('parties');
                 renderParties();
                 renderCalendar();
-                // Load sample data if the user's account is empty
                 if (state.parties.length === 0) {
                     await loadSampleData();
                 }
             }
             
             function setupRealtimeListeners() {
-                // Ensure Firebase is initialized and user is authenticated before setting up listeners
                 if (!db || !userId) return;
 
                 const contactsRef = firebase.collection(db, `artifacts/${appId}/public/data/contacts`);
@@ -743,6 +738,13 @@
             $$('.modal-bg').forEach(m => m.addEventListener('click', e => {
                 if (e.target === m) closeModal('#' + m.id);
             }));
+
+            function goBackToMainView() {
+                $('#party-details-page').innerHTML = '';
+                $('#party-details-page').classList.add('hidden');
+                $('#sidebar').classList.remove('hidden');
+                $('#calendarBlock').classList.add('hidden');
+            }
 
             /* ===== Contacts & Households ===== */
             function householdName(id) {
@@ -1038,6 +1040,167 @@
             async function openParty(id) {
                 currentParty = state.parties.find(p => p.docId === id);
                 if (!currentParty) return;
+                
+                $('#party-details-page').innerHTML = `
+                    <div class="bg-white rounded-xl shadow-lg p-6 space-y-6">
+                        <div class="flex justify-between items-center mb-4">
+                            <button id="btnBack" class="flex items-center gap-2 px-4 py-2 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-arrow-left"><path d="m12 19-7-7 7-7"/><path d="M19 12H5"/></svg>
+                                Back
+                            </button>
+                            <h3 id="dTitle" class="text-xl font-semibold truncate flex-1 text-center"></h3>
+                            <div class="flex items-center gap-2">
+                                <button id="btnPrintChecklist" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-printer"><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><path d="M6 14v4a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-4"/><path d="M18 8a2 2 0 0 1-2-2v-2a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2a2 2 0 0 1-2 2"/><path d="M12 18v6"/><path d="M12 2v-4"/></svg>
+                                    Print
+                                </button>
+                                <button id="btnDeleteParty" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors shadow-md">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2"><path d="M3 6h18"/><path d="M19 6v14c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2V6"/><path d="M8 6V4c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                                    Delete
+                                </button>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-4 text-sm text-slate-500">
+                            <span id="dRole" class="inline-flex items-center gap-1 text-xs font-medium bg-blue-100 text-blue-600 rounded-full px-2 py-0.5">PLANNING</span>
+                            <span id="dDate" class="inline-flex items-center gap-1 text-xs font-medium bg-slate-100 text-slate-600 rounded-full px-2 py-0.5">—</span>
+                            <span id="dTime" class="inline-flex items-center gap-1 text-xs font-medium bg-slate-100 text-slate-600 rounded-full px-2 py-0.5">Time: —</span>
+                            <span id="dFor" class="inline-flex items-center gap-1 text-xs font-medium bg-slate-100 text-slate-600 rounded-full px-2 py-0.5">For: —</span>
+                            <span id="dDays" class="inline-flex items-center gap-1 text-xs font-medium bg-slate-100 text-green-700 rounded-full px-2 py-0.5">—</span>
+                        </div>
+                        <div id="hostBlocks" class="space-y-6">
+                            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                                <div class="bg-slate-100 rounded-lg p-3 text-center text-sm font-medium text-slate-600 shadow-sm">Estimated Cost<div class="text-lg font-bold" id="summaryCost">$0.00</div></div>
+                                <div class="bg-slate-100 rounded-lg p-3 text-center text-sm font-medium text-slate-600 shadow-sm">Items To Buy<div class="text-lg font-bold" id="summaryItems">0</div></div>
+                                <div class="bg-slate-100 rounded-lg p-3 text-center text-sm font-medium text-slate-600 shadow-sm">Guests Confirmed<div class="text-lg font-bold" id="summaryConfirmed">0</div></div>
+                                <div class="bg-slate-100 rounded-lg p-3 text-center text-sm font-medium text-slate-600 shadow-sm">Adults<div class="text-lg font-bold" id="cntAdults">0</div></div>
+                                <div class="bg-slate-100 rounded-lg p-3 text-center text-sm font-medium text-slate-600 shadow-sm">Kids<div class="text-lg font-bold" id="cntKids">0</div></div>
+                            </div>
+                            <div class="bg-white rounded-xl shadow-md p-4">
+                                <div class="flex justify-between items-center cursor-pointer" onclick="this.nextElementSibling.classList.toggle('hidden')">
+                                    <h4 class="text-lg font-semibold text-slate-700">Local Weather Forecast</h4>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down text-slate-500"><path d="m6 9 6 6 6-6"/></svg>
+                                </div>
+                                <div id="weatherContent" class="mt-2 text-sm text-slate-600">
+                                    <p>Click below to load the weather forecast.</p>
+                                    <button class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white bg-slate-800 hover:bg-slate-900 transition-colors shadow-md mt-2" id="btnLoadWeather">Load Weather</button>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-xl shadow-md p-4 space-y-4">
+                                <h4 class="text-lg font-semibold text-slate-700">Guests & Invitees</h4>
+                                <div class="flex flex-wrap gap-2 text-sm">
+                                    <div class="text-slate-500">Expected Guests:</div>
+                                    <input id="guestCount" type="number" min="0" class="w-24 h-8 text-center px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/>
+                                </div>
+                                <form id="inviteePicker" class="flex flex-wrap items-end gap-2">
+                                    <div class="flex-1 min-w-[150px]">
+                                        <label class="block text-sm font-medium text-slate-600 mb-1">Pick a contact</label>
+                                        <select id="invContact" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"></select>
+                                    </div>
+                                    <button id="btnAddInvitee" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white bg-slate-800 hover:bg-slate-900 transition-colors shadow-md" type="button">Add</button>
+                                    <button id="btnOpenContactModal" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm" type="button">New Contact</button>
+                                </form>
+                                <div class="overflow-x-auto hide-scrollbar">
+                                    <table class="w-full table-auto text-sm">
+                                        <thead>
+                                            <tr class="text-left text-slate-500 font-medium">
+                                                <th class="p-2">Name</th>
+                                                <th class="p-2">Age</th>
+                                                <th class="p-2">Status</th>
+                                                <th class="p-2">Gift</th>
+                                                <th class="p-2">Thank You</th>
+                                                <th class="p-2 text-right">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="inviteeTableBody" class="divide-y divide-slate-200"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-xl shadow-md p-4 space-y-4">
+                                <h4 class="text-lg font-semibold text-slate-700">Shopping List & Assignments</h4>
+                                <form id="itemForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
+                                    <div><label class="block text-sm font-medium text-slate-600 mb-1">Item</label><input id="itName" placeholder="Cake, plates…" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
+                                    <div><label class="block text-sm font-medium text-slate-600 mb-1">Qty</label><input id="itQty" type="number" min="1" value="1" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
+                                    <div><label class="block text-sm font-medium text-slate-600 mb-1">Cost (each)</label><input id="itCost" type="number" min="0" step="0.01" value="0" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
+                                    <div><label class="block text-sm font-medium text-slate-600 mb-1">Assign to</label><select id="itAssign" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"></select></div>
+                                    <div><label class="block text-sm font-medium text-slate-600 mb-1">Status</label><select id="itStatus" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"><option value="todo">To buy</option><option value="ordered">Ordered</option><option value="picked">Picked up</option></select></div>
+                                    <div class="flex gap-2">
+                                        <button class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white bg-slate-800 hover:bg-slate-900 transition-colors shadow-md flex-1" type="submit">Add Item</button>
+                                        <button type="button" id="btnClearItem" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm flex-1">Clear</button>
+                                    </div>
+                                </form>
+                                <div class="overflow-x-auto hide-scrollbar">
+                                    <table class="w-full table-auto text-sm">
+                                        <thead>
+                                            <tr class="text-left text-slate-500 font-medium">
+                                                <th class="p-2">Item</th>
+                                                <th class="p-2">Assigned</th>
+                                                <th class="p-2">Qty</th>
+                                                <th class="p-2">Cost</th>
+                                                <th class="p-2">Status</th>
+                                                <th class="p-2 text-right">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="itemTableBody" class="divide-y divide-slate-200"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-xl shadow-md p-4 space-y-4">
+                                <h4 class="text-lg font-semibold text-slate-700">Vendors</h4>
+                                <form id="vendorForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
+                                    <div><label class="block text-sm font-medium text-slate-600 mb-1">Name</label><input id="vName" placeholder="Sweet Tooth Cakes" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
+                                    <div><label class="block text-sm font-medium text-slate-600 mb-1">Type</label><input id="vType" placeholder="Bakery / Venue / DJ" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
+                                    <div><label class="block text-sm font-medium text-slate-600 mb-1">Phone</label><input id="vPhone" placeholder="555-987-6543" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
+                                    <div><label class="block text-sm font-medium text-slate-600 mb-1">Email</label><input id="vEmail" type="email" placeholder="hello@vendor.com" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
+                                    <div><label class="block text-sm font-medium text-slate-600 mb-1">Website</label><input id="vSite" placeholder="https://…" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
+                                    <div><label class="block text-sm font-medium text-slate-600 mb-1">Notes</label><input id="vNotes" placeholder="Pickup at 3pm" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
+                                    <div class="flex gap-2">
+                                        <button class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white bg-slate-800 hover:bg-slate-900 transition-colors shadow-md flex-1" type="submit">Add Vendor</button>
+                                        <button type="button" id="btnClearVendor" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm flex-1">Clear</button>
+                                    </div>
+                                </form>
+                                <div class="overflow-x-auto hide-scrollbar">
+                                    <table class="w-full table-auto text-sm">
+                                        <thead>
+                                            <tr class="text-left text-slate-500 font-medium">
+                                                <th class="p-2">Vendor</th>
+                                                <th class="p-2">Type</th>
+                                                <th class="p-2">Contact</th>
+                                                <th class="p-2">Notes</th>
+                                                <th class="p-2 text-right">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="vendorTableBody" class="divide-y divide-slate-200"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            <div class="bg-white rounded-xl shadow-md p-4 space-y-4">
+                                <h4 class="text-lg font-semibold text-slate-700">Invitation</h4>
+                                <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
+                                    <input id="invFile" type="file" accept="image/*,application/pdf" class="hidden"/>
+                                    <label for="invFile" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm cursor-pointer">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                                        Upload
+                                    </label>
+                                    <span class="flex-1 text-sm text-slate-500 truncate" id="invMeta">No invitation uploaded yet.</span>
+                                    <button id="btnInvDownload" type="button" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm hidden">Download</button>
+                                    <button id="btnInvRemove" type="button" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors shadow-md hidden">Remove</button>
+                                </div>
+                                <div id="invPreviewWrap" class="hidden mt-2">
+                                    <div id="invPreview" class="border border-slate-200 rounded-lg p-2 bg-slate-100 flex justify-center items-center"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="attendBlocks" class="hidden space-y-6">
+                            <div class="bg-white rounded-xl shadow-md p-4 space-y-4">
+                                <h4 class="text-lg font-semibold text-slate-700">Attending Details</h4>
+                                <div><label class="block text-sm font-medium text-slate-600 mb-1">Gift I plan to bring</label><input id="aGiftPlanEdit" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="Gift idea…"/></div>
+                                <div><label class="block text-sm font-medium text-slate-600 mb-1">Notes (what to bring / reminders)</label><textarea id="aNotesEdit" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="Snacks? Cooler? Ride?"></textarea></div>
+                                <button id="btnSaveAttendModal" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white bg-slate-800 hover:bg-slate-900 transition-colors shadow-md" type="button">Save Changes</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
                 $('#dTitle').textContent = currentParty.title;
                 $('#dRole').textContent = currentParty.role === 'host' ? 'HOST' : 'ATTENDING';
                 $('#dDate').textContent = currentParty.date || '—';
@@ -1056,20 +1219,39 @@
                     $('#aNotesEdit').value = currentParty.attend?.notes || '';
                 }
                 
+                // Attach event listeners
+                $('#btnBack').onclick = goBackToMainView;
+                $('#btnDeleteParty').onclick = async () => {
+                    if (!currentParty) return;
+                    if (confirm('Delete this party?')) {
+                        await Data.delete('parties', currentParty.docId);
+                        goBackToMainView();
+                        currentParty = null;
+                    }
+                };
+                $('#btnSaveAttendModal').onclick = async () => {
+                    if (!currentParty) return;
+                    currentParty.attend = { giftPlan: $('#aGiftPlanEdit').value.trim(), notes: $('#aNotesEdit').value.trim() };
+                    await Data.save('parties', [currentParty]);
+                    showMessage('Saved changes successfully.', 'success');
+                };
+
                 renderContacts();
                 renderInvitees();
                 renderItems();
                 renderVendors();
                 renderInvitation();
-                openModal('#partyModal');
                 updateCountsAndLists();
+
+                $('#sidebar').classList.add('hidden');
+                $('#party-details-page').classList.remove('hidden');
             }
 
             $('#btnDeleteParty').onclick = async () => {
                 if (!currentParty) return;
                 if (confirm('Delete this party?')) {
                     await Data.delete('parties', currentParty.docId);
-                    closeModal('#partyModal');
+                    goBackToMainView();
                     currentParty = null;
                 }
             };
@@ -1079,7 +1261,6 @@
                 currentParty.attend = { giftPlan: $('#aGiftPlanEdit').value.trim(), notes: $('#aNotesEdit').value.trim() };
                 await Data.save('parties', [currentParty]);
                 showMessage('Saved changes successfully.', 'success');
-                closeModal('#partyModal');
             };
 
             /* ===== Invitees (host) ===== */
@@ -1099,7 +1280,7 @@
 
             $('#btnAddInvitee').onclick = () => addInviteeByContactId($('#invContact').value);
             $('#btnOpenContactModal').onclick = () => {
-                closeModal('#partyModal');
+                $('#party-details-page').classList.add('hidden');
                 openModal('#contactFormModal');
             };
 
@@ -1327,8 +1508,10 @@
                     return;
                 }
                 const inv = currentParty.invitation;
-                $('#btnInvDownload').classList.add('hidden');
-                $('#btnInvRemove').classList.add('hidden');
+                const btnInvDownload = document.querySelector('#btnInvDownload');
+                const btnInvRemove = document.querySelector('#btnInvRemove');
+                if (btnInvDownload) btnInvDownload.classList.add('hidden');
+                if (btnInvRemove) btnInvRemove.classList.add('hidden');
                 prev.innerHTML = '';
                 if (!inv) {
                     meta.textContent = 'No invitation uploaded yet.';
@@ -1337,8 +1520,8 @@
                 }
                 meta.textContent = `${inv.name || 'invitation'} • ${inv.type || ''} • ${(inv.size / 1024 / 1024).toFixed(2)} MB`;
                 wrap.classList.remove('hidden');
-                $('#btnInvDownload').classList.remove('hidden');
-                $('#btnInvRemove').classList.remove('hidden');
+                if (btnInvDownload) btnInvDownload.classList.remove('hidden');
+                if (btnInvRemove) btnInvRemove.classList.remove('hidden');
                 if (inv.type && inv.type.startsWith('image/')) {
                     const img = new Image();
                     img.src = inv.dataURL;
@@ -1418,7 +1601,7 @@
                         <div class="text-xs font-semibold mb-1">${day}</div>
                         ${partiesOnDay.map(p => {
                             const hue = personColor(p.forContactId || '');
-                            return `<div class="flex items-center gap-1 text-[10px] truncate text-slate-600" onclick="openParty('${p.docId}')">
+                            return `<div class="flex items-center gap-1 text-[10px] truncate text-slate-600" data-open="${p.docId}">
                                 <span class="w-2 h-2 rounded-full inline-block" style="background:${hue};"></span>
                                 ${p.title}
                             </div>`;
@@ -1426,18 +1609,27 @@
                     `;
                     grid.appendChild(cell);
                 }
+                grid.addEventListener('click', e => {
+                    const openBtn = e.target.closest('[data-open]');
+                    if (openBtn) {
+                        openParty(openBtn.getAttribute('data-open'));
+                    }
+                });
             }
 
             $('#toggleCalendar').onclick = () => {
                 const calBlock = $('#calendarBlock');
+                const sidebar = $('#sidebar');
                 if (calBlock.classList.contains('hidden')) {
                     calBlock.classList.remove('hidden');
+                    sidebar.classList.add('hidden');
                     $('#toggleCalendar').innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-off">
                         <path d="M16 2v4"/><path d="M8 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M12 22V10"/><path d="M15.5 15.5H8"/><line x1="2" x2="22" y1="2" y2="22"/>
                     </svg> Hide Calendar`;
                     renderCalendar();
                 } else {
                     calBlock.classList.add('hidden');
+                    sidebar.classList.remove('hidden');
                     $('#toggleCalendar').innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar">
                         <path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>
                     </svg> Show Calendar`;
