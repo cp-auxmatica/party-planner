@@ -20,7 +20,6 @@
         .modal-backdrop { backdrop-filter: blur(8px); }
         .modal-bg.show .modal-card { transform: scale(1); opacity: 1; }
         .modal-card { transform: scale(0.95); opacity: 0; transition: transform 0.3s ease-out, opacity 0.3s ease-out; }
-
     </style>
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -550,7 +549,7 @@
                         showMessage("App not ready. Please try again.", "error");
                         return [];
                     }
-                    const userRef = firebase.collection(db, `artifacts/${appId}/users/${userId}/${collectionName}`);
+                    const userRef = firebase.collection(db, `artifacts/${appId}/public/data/${collectionName}`);
                     try {
                         const savedDocs = [];
                         for (const item of data) {
@@ -576,7 +575,7 @@
                         showMessage("App not ready. Please try again.", "error");
                         return [];
                     }
-                    const userRef = firebase.collection(db, `artifacts/${appId}/users/${userId}/${collectionName}`);
+                    const userRef = firebase.collection(db, `artifacts/${appId}/public/data/${collectionName}`);
                     try {
                         const q = firebase.query(userRef);
                         const querySnapshot = await firebase.getDocs(q);
@@ -596,7 +595,7 @@
                         showMessage("App not ready. Please try again.", "error");
                         return false;
                     }
-                    const userRef = firebase.collection(db, `artifacts/${appId}/users/${userId}/${collectionName}`);
+                    const userRef = firebase.collection(db, `artifacts/${appId}/public/data/${collectionName}`);
                     try {
                         await firebase.deleteDoc(firebase.doc(userRef, docId));
                         return true;
@@ -664,9 +663,9 @@
                 // Ensure Firebase is initialized and user is authenticated before setting up listeners
                 if (!db || !userId) return;
 
-                const contactsRef = firebase.collection(db, `artifacts/${appId}/users/${userId}/contacts`);
-                const partiesRef = firebase.collection(db, `artifacts/${appId}/users/${userId}/parties`);
-                const householdsRef = firebase.collection(db, `artifacts/${appId}/users/${userId}/households`);
+                const contactsRef = firebase.collection(db, `artifacts/${appId}/public/data/contacts`);
+                const partiesRef = firebase.collection(db, `artifacts/${appId}/public/data/parties`);
+                const householdsRef = firebase.collection(db, `artifacts/${appId}/public/data/households`);
 
                 firebase.onSnapshot(contactsRef, (snapshot) => {
                     state.contacts = snapshot.docs.map(d => ({ docId: d.id, ...d.data() }));
@@ -903,7 +902,7 @@
 
             /* ===== Parties ===== */
             function personName(id) {
-                return id ? (state.contacts.find(c => c.docId === id)?.name || '—') : '—';
+                return state.contacts.find(c => c.docId === id)?.name || '—';
             }
 
             function personColor(id) {
@@ -1198,4 +1197,392 @@
                         <td class="p-2">${statusBadge(it.status)}</td>
                         <td class="p-2 text-right flex gap-1 justify-end">
                             <button data-act="status" data-idx="${idx}" class="flex items-center justify-center gap-2 px-2 py-1 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm text-xs">Next</button>
-                            <button data-act="remove" data-idx="${idx}" class="flex items-center justify-center gap-2 px-2 py-1 rounded-lg font-semibold text-white bg-r
+                            <button data-act="remove" data-idx="${idx}" class="flex items-center justify-center gap-2 px-2 py-1 rounded-lg font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors shadow-md text-xs">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2">
+                                    <path d="M3 6h18"/><path d="M19 6v14c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2V6"/><path d="M8 6V4c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>
+                                </svg>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            $('#itemForm').addEventListener('submit', async e => {
+                e.preventDefault();
+                if (!currentParty || currentParty.role !== 'host') return;
+                const it = {
+                    name: $('#itName').value.trim(),
+                    qty: Number($('#itQty').value) || 1,
+                    cost: Number($('#itCost').value) || 0,
+                    assignedTo: $('#itAssign').value || null,
+                    status: $('#itStatus').value
+                };
+                if (!it.name) {
+                    showMessage('Item name required.', 'error');
+                    return;
+                }
+                currentParty.items.push(it);
+                await Data.save('parties', [currentParty]);
+                e.target.reset();
+                showMessage('Item added successfully.', 'success');
+            });
+            $('#btnClearItem').onclick = () => $('#itemForm').reset();
+            $('#itemTableBody').addEventListener('click', async e => {
+                const b = e.target.closest('button');
+                if (!b || !currentParty || currentParty.role !== 'host') return;
+                const idx = +b.dataset.idx;
+                const it = currentParty.items[idx];
+                if (!it) return;
+                if (b.dataset.act === 'remove') {
+                    currentParty.items.splice(idx, 1);
+                }
+                if (b.dataset.act === 'status') {
+                    it.status = it.status === 'todo' ? 'ordered' : it.status === 'ordered' ? 'picked' : 'todo';
+                }
+                await Data.save('parties', [currentParty]);
+            });
+
+            /* ===== Vendors (host) ===== */
+            function renderVendors() {
+                if (!currentParty || currentParty.role !== 'host') return;
+                const tbody = $('#vendorTableBody');
+                tbody.innerHTML = '';
+                (currentParty.vendors || []).forEach((v, idx) => {
+                    const contact = [v.phone ? `📞 ${v.phone}` : '', v.email ? `✉️ ${v.email}` : '', v.site ? `🔗 ${v.site}` : ''].filter(Boolean).join(' · ') || '—';
+                    const tr = document.createElement('tr');
+                    tr.className = 'hover:bg-slate-50 transition-colors';
+                    tr.innerHTML = `
+                        <td class="p-2">${v.name}</td>
+                        <td class="p-2 text-slate-500">${v.type || '—'}</td>
+                        <td class="p-2 text-slate-500 text-xs">${contact}</td>
+                        <td class="p-2 text-slate-500 text-xs">${v.notes || '—'}</td>
+                        <td class="p-2 text-right flex gap-1 justify-end">
+                            <button data-act="edit" data-idx="${idx}" class="flex items-center justify-center gap-2 px-2 py-1 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm text-xs">✎</button>
+                            <button data-act="remove" data-idx="${idx}" class="flex items-center justify-center gap-2 px-2 py-1 rounded-lg font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors shadow-md text-xs">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2">
+                                    <path d="M3 6h18"/><path d="M19 6v14c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2V6"/><path d="M8 6V4c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/>
+                                </svg>
+                            </button>
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            $('#vendorForm').addEventListener('submit', async e => {
+                e.preventDefault();
+                if (!currentParty || currentParty.role !== 'host') return;
+                const v = {
+                    name: $('#vName').value.trim(),
+                    type: $('#vType').value.trim(),
+                    phone: $('#vPhone').value.trim(),
+                    email: $('#vEmail').value.trim(),
+                    site: $('#vSite').value.trim(),
+                    notes: $('#vNotes').value.trim()
+                };
+                if (!v.name) {
+                    showMessage('Vendor name required.', 'error');
+                    return;
+                }
+                currentParty.vendors.push(v);
+                await Data.save('parties', [currentParty]);
+                e.target.reset();
+                showMessage('Vendor added successfully.', 'success');
+            });
+
+            $('#btnClearVendor').onclick = () => $('#vendorForm').reset();
+
+            $('#vendorTableBody').addEventListener('click', async e => {
+                const b = e.target.closest('button');
+                if (!b || !currentParty || currentParty.role !== 'host') return;
+                const idx = +b.dataset.idx;
+                if (b.dataset.act === 'remove') {
+                    currentParty.vendors.splice(idx, 1);
+                }
+                if (b.dataset.act === 'edit') {
+                    const v = currentParty.vendors[idx];
+                    $('#vName').value = v.name;
+                    $('#vType').value = v.type || '';
+                    $('#vPhone').value = v.phone || '';
+                    $('#vEmail').value = v.email || '';
+                    $('#vSite').value = v.site || '';
+                    $('#vNotes').value = v.notes || '';
+                    currentParty.vendors.splice(idx, 1);
+                }
+                await Data.save('parties', [currentParty]);
+            });
+            
+            /* ===== Invitation (host) ===== */
+            async function fileToDataURL(file) {
+                return new Promise((res, rej) => { const fr = new FileReader(); fr.onload = () => res(fr.result); fr.onerror = rej; fr.readAsDataURL(file); });
+            }
+
+            function renderInvitation() {
+                const meta = $('#invMeta'), wrap = $('#invPreviewWrap'), prev = $('#invPreview');
+                if (!currentParty || currentParty.role !== 'host') {
+                    if (meta) meta.textContent = '';
+                    if (wrap) wrap.classList.add('hidden');
+                    if (prev) prev.innerHTML = '';
+                    return;
+                }
+                const inv = currentParty.invitation;
+                $('#btnInvDownload').classList.add('hidden');
+                $('#btnInvRemove').classList.add('hidden');
+                prev.innerHTML = '';
+                if (!inv) {
+                    meta.textContent = 'No invitation uploaded yet.';
+                    wrap.classList.add('hidden');
+                    return;
+                }
+                meta.textContent = `${inv.name || 'invitation'} • ${inv.type || ''} • ${(inv.size / 1024 / 1024).toFixed(2)} MB`;
+                wrap.classList.remove('hidden');
+                $('#btnInvDownload').classList.remove('hidden');
+                $('#btnInvRemove').classList.remove('hidden');
+                if (inv.type && inv.type.startsWith('image/')) {
+                    const img = new Image();
+                    img.src = inv.dataURL;
+                    img.className = 'w-full h-auto rounded-lg';
+                    prev.appendChild(img);
+                } else if (inv.type === 'application/pdf') {
+                    const iframe = document.createElement('iframe');
+                    iframe.src = inv.dataURL;
+                    iframe.className = 'w-full h-96 rounded-lg';
+                    prev.appendChild(iframe);
+                } else {
+                    prev.innerHTML = `<p class="text-slate-500">File type preview not available.</p>`;
+                }
+            }
+
+            $('#invFile').addEventListener('change', async e => {
+                if (!currentParty || currentParty.role !== 'host') return;
+                const f = e.target.files?.[0];
+                if (!f) return;
+                if (f.size > 8 * 1024 * 1024 && !confirm('This file is larger than 8 MB and may exceed browser storage quotas. Continue?')) {
+                    e.target.value = '';
+                    return;
+                }
+                currentParty.invitation = { name: f.name, type: f.type || '', size: f.size || 0, uploadedAt: new Date().toISOString(), dataURL: await fileToDataURL(f) };
+                await Data.save('parties', [currentParty]);
+                renderInvitation();
+                e.target.value = '';
+                showMessage('Invitation uploaded successfully!', 'success');
+            });
+            $('#btnInvRemove').onclick = async () => {
+                if (!currentParty || currentParty.role !== 'host' || !currentParty.invitation) return;
+                if (!confirm('Remove invitation?')) return;
+                currentParty.invitation = null;
+                await Data.save('parties', [currentParty]);
+                renderInvitation();
+                showMessage('Invitation removed.', 'success');
+            };
+            $('#btnInvDownload').onclick = () => {
+                if (!currentParty || currentParty.role !== 'host' || !currentParty.invitation) {
+                    showMessage('No invitation to download.', 'info');
+                    return;
+                }
+                const a = document.createElement('a');
+                a.href = currentParty.invitation.dataURL;
+                a.download = currentParty.invitation.name || 'invitation';
+                a.click();
+                setTimeout(() => URL.revokeObjectURL(a.href), 500);
+            };
+
+            /* ===== Calendar ===== */
+            let calRef = new Date();
+
+            function startOfMonth(d) { return new Date(d.getFullYear(), d.getMonth(), 1); }
+            function endOfMonth(d) { return new Date(d.getFullYear(), d.getMonth() + 1, 0); }
+
+            function renderCalendar() {
+                const grid = $('#calGrid');
+                grid.innerHTML = '<div class="font-bold text-slate-500">Sun</div><div class="font-bold text-slate-500">Mon</div><div class="font-bold text-slate-500">Tue</div><div class="font-bold text-slate-500">Wed</div><div class="font-bold text-slate-500">Thu</div><div class="font-bold text-slate-500">Fri</div><div class="font-bold text-slate-500">Sat</div>';
+                const monthStart = startOfMonth(calRef),
+                    monthEnd = endOfMonth(calRef);
+                $('#calTitle').textContent = monthStart.toLocaleString(undefined, { month: 'long', year: 'numeric' });
+                const startDow = (monthStart.getDay() + 7) % 7,
+                    totalDays = monthEnd.getDate();
+
+                for (let i = 0; i < startDow; i++) {
+                    const pad = document.createElement('div');
+                    grid.appendChild(pad);
+                }
+
+                for (let day = 1; day <= totalDays; day++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'rounded-md p-2 bg-slate-50 border border-slate-200 text-slate-800 text-left cursor-pointer hover:bg-slate-100 transition-colors shadow-sm';
+                    const d = new Date(calRef.getFullYear(), calRef.getMonth(), day);
+                    const iso = d.toISOString().slice(0, 10);
+                    const partiesOnDay = state.parties.filter(p => p.date === iso);
+                    cell.innerHTML = `
+                        <div class="text-xs font-semibold mb-1">${day}</div>
+                        ${partiesOnDay.map(p => {
+                            const hue = personColor(p.forContactId || '');
+                            return `<div class="flex items-center gap-1 text-[10px] truncate text-slate-600" onclick="openParty('${p.docId}')">
+                                <span class="w-2 h-2 rounded-full inline-block" style="background:${hue};"></span>
+                                ${p.title}
+                            </div>`;
+                        }).join('')}
+                    `;
+                    grid.appendChild(cell);
+                }
+            }
+
+            $('#toggleCalendar').onclick = () => {
+                const calBlock = $('#calendarBlock');
+                if (calBlock.classList.contains('hidden')) {
+                    calBlock.classList.remove('hidden');
+                    $('#toggleCalendar').innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-off">
+                        <path d="M16 2v4"/><path d="M8 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M12 22V10"/><path d="M15.5 15.5H8"/><line x1="2" x2="22" y1="2" y2="22"/>
+                    </svg> Hide Calendar`;
+                    renderCalendar();
+                } else {
+                    calBlock.classList.add('hidden');
+                    $('#toggleCalendar').innerHTML = `<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar">
+                        <path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/>
+                    </svg> Show Calendar`;
+                }
+            };
+            $('#calPrev').onclick = () => { calRef = new Date(calRef.getFullYear(), calRef.getMonth() - 1, 1); renderCalendar(); };
+            $('#calNext').onclick = () => { calRef = new Date(calRef.getFullYear(), calRef.getMonth() + 1, 1); renderCalendar(); };
+
+            /* ===== Toolbar ===== */
+            $('#btnContacts').onclick = () => { renderContacts(); renderHouseholds(); openModal('#contactsModal'); };
+            $('#btnAddContact').onclick = () => { $('#contactForm').reset(); $('#cId').value = ''; $('#contactFormTitle').textContent = 'Add Contact'; closeModal('#contactsModal'); openModal('#contactFormModal'); };
+            $('#btnHouseholds').onclick = () => { renderHouseholds(); closeModal('#contactsModal'); openModal('#householdsModal'); };
+            $('#btnPrintChecklist').onclick = () => window.print();
+
+            /* ===== Export / Import / Reset / Seed ===== */
+            $('#btnExport').onclick = () => { const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' }); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `party-planner-${new Date().toISOString().replace(/[:.]/g, '-')}.json`; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 500); };
+            $('#importFile').addEventListener('change', async e => {
+                const f = e.target.files?.[0];
+                if (!f) return;
+                try {
+                    const importedData = JSON.parse(await f.text());
+                    if (!importedData || !Array.isArray(importedData.contacts) || !Array.isArray(importedData.parties) || !Array.isArray(importedData.households)) {
+                        throw new Error('Invalid file format.');
+                    }
+            
+                    const oldToNewContactIdMap = {};
+                    const oldToNewHouseholdIdMap = {};
+            
+                    // Step 1: Save households and create a map
+                    const householdsToSave = importedData.households.map(h => {
+                        const newId = firebase.doc(firebase.collection(db, `artifacts/${appId}/public/data/households`)).id;
+                        oldToNewHouseholdIdMap[h.id] = newId;
+                        return { ...h, id: newId, docId: newId };
+                    });
+                    await Data.save('households', householdsToSave);
+            
+                    // Step 2: Save contacts and create a map, updating householdId
+                    const contactsToSave = importedData.contacts.map(c => {
+                        const newId = firebase.doc(firebase.collection(db, `artifacts/${appId}/public/data/contacts`)).id;
+                        oldToNewContactIdMap[c.id] = newId;
+                        // Update householdId using the new Firebase ID
+                        if (c.householdId && oldToNewHouseholdIdMap[c.householdId]) {
+                            c.householdId = oldToNewHouseholdIdMap[c.householdId];
+                        }
+                        return { ...c, id: newId, docId: newId };
+                    });
+                    await Data.save('contacts', contactsToSave);
+            
+                    // Step 3: Update parties with new contact and household IDs and save
+                    const partiesToSave = importedData.parties.map(p => {
+                        // Update forContactId
+                        if (p.forContactId && oldToNewContactIdMap[p.forContactId]) {
+                            p.forContactId = oldToNewContactIdMap[p.forContactId];
+                        }
+            
+                        // Update invitees
+                        if (p.invitees && Array.isArray(p.invitees)) {
+                            p.invitees.forEach(i => {
+                                if (i.contactId && oldToNewContactIdMap[i.contactId]) {
+                                    i.contactId = oldToNewContactIdMap[i.contactId];
+                                }
+                            });
+                        }
+
+                        // Update items assignedTo
+                        if (p.items && Array.isArray(p.items)) {
+                            p.items.forEach(item => {
+                                if (item.assignedTo && oldToNewContactIdMap[item.assignedTo]) {
+                                    item.assignedTo = oldToNewContactIdMap[item.assignedTo];
+                                }
+                            });
+                        }
+            
+                        const newId = firebase.doc(firebase.collection(db, `artifacts/${appId}/public/data/parties`)).id;
+                        return { ...p, id: newId, docId: newId };
+                    });
+                    await Data.save('parties', partiesToSave);
+            
+                    showMessage('Import complete.', 'success');
+                } catch (err) {
+                    console.error('Import failed: ', err);
+                    showMessage('Import failed: ' + err.message, 'error');
+                }
+                e.target.value = '';
+            });
+            $('#btnReset').onclick = async () => {
+                if (!confirm('Erase all data?')) return;
+                if (!db || !userId) {
+                     showMessage("App not ready. Please try again.", "error");
+                     return;
+                }
+                const contacts = await Data.get('contacts');
+                const households = await Data.get('households');
+                const parties = await Data.get('parties');
+                await Promise.all(contacts.map(c => Data.delete('contacts', c.docId)));
+                await Promise.all(households.map(h => Data.delete('households', h.docId)));
+                await Promise.all(parties.map(p => Data.delete('parties', p.docId))); 
+                showMessage('All data erased.', 'success'); 
+            };
+            async function loadSampleData() {
+                const h1 = { name: 'Rivera Family' };
+                const h2 = { name: 'Lee Household' };
+                const savedHouseholds = await Data.save('households', [h1, h2]);
+                
+                const contacts = [
+                    { name: 'Alex Rivera', birthday: '2010-09-18', phone: '555-123-4567', email: 'alex@example.com', householdId: savedHouseholds[0].docId },
+                    { name: 'Priya Rivera', birthday: '1988-03-12', phone: '', email: '', householdId: savedHouseholds[0].docId },
+                    { name: 'Jordan Lee', birthday: '1989-10-05', phone: '555-987-1111', email: 'jordan@example.com', householdId: savedHouseholds[1].docId }
+                ];
+                const savedContacts = await Data.save('contacts', contacts);
+
+                const parties = [
+                    {
+                        title: 'Alex Birthday', date: todayISO(), time: '18:00', role: 'host', forContactId: savedContacts[0].docId,
+                        invitees: [{ contactId: savedContacts[0].docId, status: 'confirmed', gift: 'Lego set', thankYou: true }, { contactId: savedContacts[1].docId, status: 'invited', gift: '', thankYou: false }],
+                        items: [{ name: 'Cake', qty: 1, cost: 35, assignedTo: savedContacts[1].docId, status: 'ordered' }, { name: 'Plates', qty: 30, cost: 0.1, assignedTo: null, status: 'todo' }],
+                        vendors: [], attend: { giftPlan: '', notes: '' }, invitation: null, guestCount: 8
+                    },
+                    {
+                        title: 'Jordan Cookout', date: todayISO(), time: '13:00', role: 'attend', forContactId: savedContacts[2].docId,
+                        invitees: [], items: [], vendors: [], attend: { giftPlan: 'Cooler + drinks', notes: 'Bring lawn chairs' }, invitation: null, guestCount: 0
+                    }
+                ];
+                await Data.save('parties', parties);
+                showMessage('Sample data loaded successfully!', 'success');
+            }
+            $('#btnSeed').onclick = async () => {
+                 if (!confirm('Load sample data? (Replaces current)')) return;
+                 if (!db || !userId) {
+                    showMessage("App not ready. Please try again.", "error");
+                    return;
+                }
+                const currentContacts = await Data.get('contacts');
+                const currentHouseholds = await Data.get('households');
+                const currentParties = await Data.get('parties');
+                await Promise.all(currentContacts.map(c => Data.delete('contacts', c.docId)));
+                await Promise.all(currentHouseholds.map(h => Data.delete('households', h.docId)));
+                await Promise.all(currentParties.map(p => Data.delete('parties', p.docId)));
+                await loadSampleData(); 
+            };
+
+            /* ===== Init ===== */
+            initFirebase();
+            
+        });
+    </script>
+</body>
+</html>
