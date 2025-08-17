@@ -8,7 +8,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body { font-family: 'Inter', sans-serif; }
-        .grid-with-min { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
+        /* Responsive grid layout for the main content area */
         @media (min-width: 1024px) {
             .lg-main-content { grid-template-columns: minmax(300px, 1fr) 3fr; }
         }
@@ -43,7 +43,7 @@
                     <path d="M12 12l4 4"/>
                     <path d="M14 2c-2.7 0-5 2.2-5 5-2.7 0-5 2.2-5 5 2.7 0 5 2.2 5 5 2.7 0 5-2.2 5-5 2.7 0-5-2.2-5-5z"/>
                 </svg>
-                <h1 class="text-3xl font-bold tracking-tight">Party Planner</h1>
+                <h1 class="text-3xl font-bold tracking-tight">Party Planner <span class="text-base font-normal text-slate-500">Updated</span></h1>
             </div>
             <div class="flex flex-wrap gap-2 sm:gap-4 w-full sm:w-auto">
                 <button id="btnPlan" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white bg-slate-800 hover:bg-slate-900 transition-colors shadow-md w-full sm:w-auto">
@@ -68,8 +68,8 @@
         </header>
 
         <!-- Main Application View -->
-        <main id="main-view" class="grid lg:grid-cols-[minmax(300px,1fr)_3fr] gap-6">
-            <!-- Sidebar / Controls -->
+        <main id="main-view" class="grid lg:grid-cols-2 gap-6">
+            <!-- Sidebar / Controls (Hidden on party details page) -->
             <div id="sidebar" class="space-y-6">
                 <!-- My Parties -->
                 <div class="bg-white rounded-xl shadow-lg p-6">
@@ -116,7 +116,7 @@
                 </div>
             </div>
 
-            <!-- Calendar View -->
+            <!-- Calendar View (Hidden by default) -->
             <div id="calendarBlock" class="hidden col-span-2">
                 <div class="bg-white rounded-xl shadow-lg p-6">
                     <div class="flex justify-between items-center mb-4">
@@ -137,7 +137,7 @@
             </div>
             
             <!-- Party Details Page (starts hidden) -->
-            <div id="party-details-page" class="hidden lg:col-span-2 space-y-6"></div>
+            <div id="party-details-page" class="hidden lg:col-span-2 space-y-6 w-full"></div>
         </main>
     </div>
 
@@ -421,7 +421,7 @@
                         <form id="vendorForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
                             <div><label class="block text-sm font-medium text-slate-600 mb-1">Name</label><input id="vName" placeholder="Sweet Tooth Cakes" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
                             <div><label class="block text-sm font-medium text-slate-600 mb-1">Type</label><input id="vType" placeholder="Bakery / Venue / DJ" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
-                            <div><label class="block text-sm font-medium text-slate-600 mb-1">Phone</label><input id="vPhone" placeholder="555-987-6543" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
+                            <div><label class="block text-sm font-medium text-slate-600 mb-1">Phone</label><input id="vPhone" placeholder="555-123-4567" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
                             <div><label class="block text-sm font-medium text-slate-600 mb-1">Email</label><input id="vEmail" type="email" placeholder="hello@vendor.com" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
                             <div><label class="block text-sm font-medium text-slate-600 mb-1">Website</label><input id="vSite" placeholder="https://…" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
                             <div><label class="block text-sm font-medium text-slate-600 mb-1">Notes</label><input id="vNotes" placeholder="Pickup at 3pm" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
@@ -765,7 +765,7 @@
                         <form id="vendorForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
                             <div><label class="block text-sm font-medium text-slate-600 mb-1">Name</label><input id="vName" placeholder="Sweet Tooth Cakes" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
                             <div><label class="block text-sm font-medium text-slate-600 mb-1">Type</label><input id="vType" placeholder="Bakery / Venue / DJ" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
-                            <div><label class="block text-sm font-medium text-slate-600 mb-1">Phone</label><input id="vPhone" placeholder="555-987-6543" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
+                            <div><label class="block text-sm font-medium text-slate-600 mb-1">Phone</label><input id="vPhone" placeholder="555-123-4567" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
                             <div><label class="block text-sm font-medium text-slate-600 mb-1">Email</label><input id="vEmail" type="email" placeholder="hello@vendor.com" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
                             <div><label class="block text-sm font-medium text-slate-600 mb-1">Website</label><input id="vSite" placeholder="https://…" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
                             <div><label class="block text-sm font-medium text-slate-600 mb-1">Notes</label><input id="vNotes" placeholder="Pickup at 3pm" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
@@ -829,350 +829,6 @@
         </main>
     </div>
 
-    <!-- Modals -->
-    <!-- CONTACTS MODAL -->
-    <div id="contactsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900 bg-opacity-30 backdrop-blur-md">
-        <div class="bg-white rounded-2xl shadow-2xl p-4 sm:p-6 w-full max-w-xl max-h-[90vh]">
-            <div class="flex justify-between items-center p-4 -mx-4 -mt-4 sm:p-6 sm:-mx-6 sm:-mt-6 mb-4 border-b border-slate-200">
-                <h3 class="text-xl font-semibold">Contacts</h3>
-                <div class="flex items-center gap-2">
-                    <button id="btnHouseholds" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm">Households</button>
-                    <button id="btnAddContact" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm">Add Contact</button>
-                    <button class="p-1 rounded-full text-slate-500 hover:bg-slate-100 transition-colors" data-close="#contactsModal">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x">
-                            <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <div class="p-6 overflow-y-auto hide-scrollbar max-h-[80vh]">
-                <div class="text-sm text-slate-500 mb-4"><span id="contactCount">0</span> total contacts</div>
-                <div id="contactList" class="space-y-4"></div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- ADD/EDIT CONTACT MODAL -->
-    <div id="contactFormModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900 bg-opacity-30 backdrop-blur-md">
-        <div class="bg-white rounded-2xl shadow-2xl p-4 sm:p-6 w-full max-w-xl max-h-[90vh]">
-            <div class="flex justify-between items-center p-4 -mx-4 -mt-4 sm:p-6 sm:-mx-6 sm:-mt-6 mb-4 border-b border-slate-200">
-                <h3 id="contactFormTitle" class="text-xl font-semibold">Add Contact</h3>
-                <button class="p-1 rounded-full text-slate-500 hover:bg-slate-100 transition-colors" data-close="#contactFormModal">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x">
-                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-                    </svg>
-                </button>
-            </div>
-            <form id="contactForm" class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <input type="hidden" id="cId"/>
-                <div><label class="block text-sm font-medium text-slate-600 mb-1">Name</label><input id="cName" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="Full name"/></div>
-                <div><label class="block text-sm font-medium text-slate-600 mb-1">Birthday (optional)</label><input id="cBirthday" type="date" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
-                <div><label class="block text-sm font-medium text-slate-600 mb-1">Phone (optional)</label><input id="cPhone" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="555-123-4567"/></div>
-                <div><label class="block text-sm font-medium text-slate-600 mb-1">Email (optional)</label><input id="cEmail" type="email" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="name@email.com"/></div>
-                <div><label class="block text-sm font-medium text-slate-600 mb-1">Household</label><select id="cHousehold" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"></select></div>
-                <div><label class="block text-sm font-medium text-slate-600 mb-1">...or new household</label><input id="cHouseholdNew" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="The Johnsons"/></div>
-                <div class="flex gap-2 items-end mt-4 sm:col-span-2">
-                    <button class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white bg-slate-800 hover:bg-slate-900 transition-colors shadow-md" type="submit">Save Contact</button>
-                    <button type="button" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm" id="cClear">Clear</button>
-                </div>
-            </form>
-            <div class="p-4 text-xs italic text-slate-500">
-                You can find your `userId` here: <span id="userIdDisplay" class="font-mono"></span>
-            </div>
-        </div>
-    </div>
-    
-    <!-- HOUSEHOLDS MODAL -->
-    <div id="householdsModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900 bg-opacity-30 backdrop-blur-md">
-        <div class="bg-white rounded-2xl shadow-2xl p-4 sm:p-6 w-full max-w-xl max-h-[90vh]">
-            <div class="flex justify-between items-center p-4 -mx-4 -mt-4 sm:p-6 sm:-mx-6 sm:-mt-6 mb-4 border-b border-slate-200">
-                <h3 class="text-xl font-semibold">Households</h3>
-                <button class="p-1 rounded-full text-slate-500 hover:bg-slate-100 transition-colors" data-close="#householdsModal">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x">
-                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-                    </svg>
-                </button>
-            </div>
-            <div class="p-6">
-                <form id="houseForm" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
-                    <div><label class="block text-sm font-medium text-slate-600 mb-1">Household Name</label><input id="hName" placeholder="Garcia Family" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
-                    <div class="flex gap-2 items-end">
-                        <button class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white bg-slate-800 hover:bg-slate-900 transition-colors shadow-md" type="submit">Add Household</button>
-                        <button type="button" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm" id="hClear">Clear</button>
-                    </div>
-                </form>
-                <div class="overflow-x-auto hide-scrollbar">
-                    <table class="w-full table-auto text-sm">
-                        <thead>
-                            <tr class="text-left text-slate-500 font-medium">
-                                <th class="p-2">Household</th>
-                                <th class="p-2">Members</th>
-                                <th class="p-2 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody id="houseTableBody" class="divide-y divide-slate-200"></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-    <!-- CREATE PARTY (PLAN) MODAL -->
-    <div id="createPlanModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900 bg-opacity-30 backdrop-blur-md">
-        <div class="bg-white rounded-2xl shadow-2xl p-4 sm:p-6 w-full max-w-xl max-h-[90vh]">
-            <div class="flex justify-between items-center p-4 -mx-4 -mt-4 sm:p-6 sm:-mx-6 sm:-mt-6 mb-4 border-b border-slate-200">
-                <h3 class="text-xl font-semibold">Plan a Party</h3>
-                <button class="p-1 rounded-full text-slate-500 hover:bg-slate-100 transition-colors" data-close="#createPlanModal">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x">
-                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-                    </svg>
-                </button>
-            </div>
-            <form id="partyPlanForm" class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <input type="hidden" id="pId"/>
-                <div><label class="block text-sm font-medium text-slate-600 mb-1">Party Name</label><input id="pTitle" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="Alex’s 30th Bash"/></div>
-                <div><label class="block text-sm font-medium text-slate-600 mb-1">Date</label><input id="pDate" type="date" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
-                <div><label class="block text-sm font-medium text-slate-600 mb-1">Time (optional)</label><input id="pTime" type="time" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
-                <div><label class="block text-sm font-medium text-slate-600 mb-1">For (optional)</label><select id="pFor" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"></select></div>
-                <div class="flex gap-2 items-end mt-4 sm:col-span-2">
-                    <button class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white bg-slate-800 hover:bg-slate-900 transition-colors shadow-md" type="submit">Create Party</button>
-                    <button type="button" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm" data-close="#createPlanModal">Cancel</button>
-                </div>
-            </form>
-            <div class="text-sm text-slate-500 p-6 pt-0">
-                Need a new contact? <button class="text-blue-600 hover:text-blue-800 underline transition-colors" id="quickAddFromPlanner">Add one here</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- CREATE PARTY (ATTEND) MODAL -->
-    <div id="createAttendModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900 bg-opacity-30 backdrop-blur-md">
-        <div class="bg-white rounded-2xl shadow-2xl p-4 sm:p-6 w-full max-w-xl max-h-[90vh]">
-            <div class="flex justify-between items-center p-4 -mx-4 -mt-4 sm:p-6 sm:-mx-6 sm:-mt-6 mb-4 border-b border-slate-200">
-                <h3 class="text-xl font-semibold">Attend a Party</h3>
-                <button class="p-1 rounded-full text-slate-500 hover:bg-slate-100 transition-colors" data-close="#createAttendModal">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x">
-                        <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-                    </svg>
-                </button>
-            </div>
-            <form id="partyAttendForm" class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <input type="hidden" id="aId"/>
-                <div><label class="block text-sm font-medium text-slate-600 mb-1">Party Name</label><input id="aTitle" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="Taylor’s BBQ"/></div>
-                <div><label class="block text-sm font-medium text-slate-600 mb-1">Date</label><input id="aDate" type="date" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
-                <div><label class="block text-sm font-medium text-slate-600 mb-1">Time (optional)</label><input id="aTime" type="time" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
-                <div><label class="block text-sm font-medium text-slate-600 mb-1">For (optional)</label><select id="aFor" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"></select></div>
-                <div><label class="block text-sm font-medium text-slate-600 mb-1">Gift I plan to bring</label><input id="aGiftPlan" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="Wine, game…"/></div>
-                <div class="sm:col-span-2"><label class="block text-sm font-medium text-slate-600 mb-1">Notes (what to bring / reminders)</label><textarea id="aNotes" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="Snacks? Cooler? Ride?"></textarea></div>
-                <div class="flex gap-2 items-end mt-4 sm:col-span-2">
-                    <button id="btnSaveAttend" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white bg-slate-800 hover:bg-slate-900 transition-colors shadow-md" type="button">Save</button>
-                    <button type="button" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm" data-close="#createAttendModal">Cancel</button>
-                </div>
-            </form>
-            <div class="text-sm text-slate-500 p-6 pt-0">
-                Need a new contact? <button class="text-blue-600 hover:text-blue-800 underline transition-colors" id="quickAddFromAttendee">Add one here</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- PARTY DETAILS MODAL -->
-    <div id="partyModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900 bg-opacity-30 backdrop-blur-md">
-        <div class="bg-white rounded-2xl shadow-2xl p-4 sm:p-6 w-full max-w-4xl max-h-[90vh]">
-            <div class="flex justify-between items-center p-4 -mx-4 -mt-4 sm:p-6 sm:-mx-6 sm:-mt-6 mb-4 border-b border-slate-200">
-                <h3 id="dTitle" class="text-xl font-semibold truncate">Party</h3>
-                <div class="flex items-center gap-2">
-                    <button id="btnPrintChecklist" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm hidden print:inline-flex">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-printer">
-                            <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/>
-                            <path d="M6 14v4a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-4"/>
-                            <path d="M18 8a2 2 0 0 1-2-2v-2a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2a2 2 0 0 1-2 2"/>
-                            <path d="M12 18v6"/>
-                            <path d="M12 2v-4"/>
-                        </svg>
-                        Print
-                    </button>
-                    <button id="btnDeleteParty" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors shadow-md">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-trash-2">
-                            <path d="M3 6h18"/>
-                            <path d="M19 6v14c0 1.1-.9 2-2 2H7c-1.1 0-2-.9-2-2V6"/>
-                            <path d="M8 6V4c0-1.1.9-2 2-2h4c1.1 0 2 .9 2 2v2"/>
-                            <line x1="10" x2="10" y1="11" y2="17"/>
-                            <line x1="14" x2="14" y1="11" y2="17"/>
-                        </svg>
-                        Delete
-                    </button>
-                    <button class="p-1 rounded-full text-slate-500 hover:bg-slate-100 transition-colors" data-close="#partyModal">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-x">
-                            <path d="M18 6 6 18"/><path d="m6 6 12 12"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <div class="p-6 overflow-y-auto hide-scrollbar max-h-[90vh] space-y-6">
-                <!-- Party Details -->
-                <div class="flex flex-wrap items-center gap-4 text-sm text-slate-500">
-                    <span id="dRole" class="inline-flex items-center gap-1 text-xs font-medium bg-blue-100 text-blue-600 rounded-full px-2 py-0.5">PLANNING</span>
-                    <span id="dDate" class="inline-flex items-center gap-1 text-xs font-medium bg-slate-100 text-slate-600 rounded-full px-2 py-0.5">—</span>
-                    <span id="dTime" class="inline-flex items-center gap-1 text-xs font-medium bg-slate-100 text-slate-600 rounded-full px-2 py-0.5">Time: —</span>
-                    <span id="dFor" class="inline-flex items-center gap-1 text-xs font-medium bg-slate-100 text-slate-600 rounded-full px-2 py-0.5">For: —</span>
-                    <span id="dDays" class="inline-flex items-center gap-1 text-xs font-medium bg-slate-100 text-green-700 rounded-full px-2 py-0.5">—</span>
-                </div>
-
-                <!-- HOST VIEW -->
-                <div id="hostBlocks" class="space-y-6">
-                    <!-- Summary -->
-                    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
-                        <div class="bg-slate-100 rounded-lg p-3 text-center text-sm font-medium text-slate-600 shadow-sm">Estimated Cost<div class="text-lg font-bold" id="summaryCost">$0.00</div></div>
-                        <div class="bg-slate-100 rounded-lg p-3 text-center text-sm font-medium text-slate-600 shadow-sm">Items To Buy<div class="text-lg font-bold" id="summaryItems">0</div></div>
-                        <div class="bg-slate-100 rounded-lg p-3 text-center text-sm font-medium text-slate-600 shadow-sm">Guests Confirmed<div class="text-lg font-bold" id="summaryConfirmed">0</div></div>
-                        <div class="bg-slate-100 rounded-lg p-3 text-center text-sm font-medium text-slate-600 shadow-sm">Adults<div class="text-lg font-bold" id="cntAdults">0</div></div>
-                        <div class="bg-slate-100 rounded-lg p-3 text-center text-sm font-medium text-slate-600 shadow-sm">Kids<div class="text-lg font-bold" id="cntKids">0</div></div>
-                    </div>
-
-                    <!-- Local Weather -->
-                    <div class="bg-white rounded-xl shadow-md p-4">
-                        <div class="flex justify-between items-center cursor-pointer" onclick="this.nextElementSibling.classList.toggle('hidden')">
-                            <h4 class="text-lg font-semibold text-slate-700">Local Weather Forecast</h4>
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-chevron-down text-slate-500">
-                                <path d="m6 9 6 6 6-6"/>
-                            </svg>
-                        </div>
-                        <div id="weatherContent" class="mt-2 text-sm text-slate-600">
-                            <p>Click below to load the weather forecast.</p>
-                            <button class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white bg-slate-800 hover:bg-slate-900 transition-colors shadow-md mt-2" id="btnLoadWeather">Load Weather</button>
-                        </div>
-                    </div>
-
-                    <!-- Sections -->
-                    <div class="bg-white rounded-xl shadow-md p-4 space-y-4">
-                        <h4 class="text-lg font-semibold text-slate-700">Guests & Invitees</h4>
-                        <div class="flex flex-wrap gap-2 text-sm">
-                            <div class="text-slate-500">Expected Guests:</div>
-                            <input id="guestCount" type="number" min="0" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all w-24 h-8 text-center" />
-                        </div>
-                        <form id="inviteePicker" class="flex flex-wrap items-end gap-2">
-                            <div class="flex-1 min-w-[150px]">
-                                <label class="block text-sm font-medium text-slate-600 mb-1">Pick a contact</label>
-                                <select id="invContact" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"></select></div>
-                            <button id="btnAddInvitee" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white bg-slate-800 hover:bg-slate-900 transition-colors shadow-md" type="button">Add</button>
-                            <button id="btnOpenContactModal" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm" type="button">New Contact</button>
-                        </form>
-                        <div class="overflow-x-auto hide-scrollbar">
-                            <table class="w-full table-auto text-sm">
-                                <thead>
-                                    <tr class="text-left text-slate-500 font-medium">
-                                        <th class="p-2">Name</th>
-                                        <th class="p-2">Age</th>
-                                        <th class="p-2">Status</th>
-                                        <th class="p-2">Gift</th>
-                                        <th class="p-2">Thank You</th>
-                                        <th class="p-2 text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="inviteeTableBody" class="divide-y divide-slate-200"></tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-xl shadow-md p-4 space-y-4">
-                        <h4 class="text-lg font-semibold text-slate-700">Shopping List & Assignments</h4>
-                        <form id="itemForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
-                            <div><label class="block text-sm font-medium text-slate-600 mb-1">Item</label><input id="itName" placeholder="Cake, plates…" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
-                            <div><label class="block text-sm font-medium text-slate-600 mb-1">Qty</label><input id="itQty" type="number" min="1" value="1" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
-                            <div><label class="block text-sm font-medium text-slate-600 mb-1">Cost (each)</label><input id="itCost" type="number" min="0" step="0.01" value="0" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
-                            <div><label class="block text-sm font-medium text-slate-600 mb-1">Assign to</label><select id="itAssign" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"></select></div>
-                            <div><label class="block text-sm font-medium text-slate-600 mb-1">Status</label><select id="itStatus" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"><option value="todo">To buy</option><option value="ordered">Ordered</option><option value="picked">Picked up</option></select></div>
-                            <div class="flex gap-2">
-                                <button class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white bg-slate-800 hover:bg-slate-900 transition-colors shadow-md flex-1" type="submit">Add Item</button>
-                                <button type="button" id="btnClearItem" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm flex-1">Clear</button>
-                            </div>
-                        </form>
-                        <div class="overflow-x-auto hide-scrollbar">
-                            <table class="w-full table-auto text-sm">
-                                <thead>
-                                    <tr class="text-left text-slate-500 font-medium">
-                                        <th class="p-2">Item</th>
-                                        <th class="p-2">Assigned</th>
-                                        <th class="p-2">Qty</th>
-                                        <th class="p-2">Cost</th>
-                                        <th class="p-2">Status</th>
-                                        <th class="p-2 text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="itemTableBody" class="divide-y divide-slate-200"></tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-xl shadow-md p-4 space-y-4">
-                        <h4 class="text-lg font-semibold text-slate-700">Vendors</h4>
-                        <form id="vendorForm" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 items-end">
-                            <div><label class="block text-sm font-medium text-slate-600 mb-1">Name</label><input id="vName" placeholder="Sweet Tooth Cakes" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
-                            <div><label class="block text-sm font-medium text-slate-600 mb-1">Type</label><input id="vType" placeholder="Bakery / Venue / DJ" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
-                            <div><label class="block text-sm font-medium text-slate-600 mb-1">Phone</label><input id="vPhone" placeholder="555-987-6543" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
-                            <div><label class="block text-sm font-medium text-slate-600 mb-1">Email</label><input id="vEmail" type="email" placeholder="hello@vendor.com" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
-                            <div><label class="block text-sm font-medium text-slate-600 mb-1">Website</label><input id="vSite" placeholder="https://…" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
-                            <div><label class="block text-sm font-medium text-slate-600 mb-1">Notes</label><input id="vNotes" placeholder="Pickup at 3pm" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all"/></div>
-                            <div class="flex gap-2">
-                                <button class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white bg-slate-800 hover:bg-slate-900 transition-colors shadow-md flex-1" type="submit">Add Vendor</button>
-                                <button type="button" id="btnClearVendor" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm flex-1">Clear</button>
-                            </div>
-                        </form>
-                        <div class="overflow-x-auto hide-scrollbar">
-                            <table class="w-full table-auto text-sm">
-                                <thead>
-                                    <tr class="text-left text-slate-500 font-medium">
-                                        <th class="p-2">Vendor</th>
-                                        <th class="p-2">Type</th>
-                                        <th class="p-2">Contact</th>
-                                        <th class="p-2">Notes</th>
-                                        <th class="p-2 text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="vendorTableBody" class="divide-y divide-slate-200"></tbody>
-                            </table>
-                        </div>
-                    </div>
-
-                    <div class="bg-white rounded-xl shadow-md p-4 space-y-4">
-                        <h4 class="text-lg font-semibold text-slate-700">Invitation</h4>
-                        <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
-                            <input id="invFile" type="file" accept="image/*,application/pdf" class="hidden"/>
-                            <label for="invFile" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm cursor-pointer">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload">
-                                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>
-                                </svg>
-                                Upload
-                            </label>
-                            <span class="flex-1 text-sm text-slate-500 truncate" id="invMeta">No invitation uploaded yet.</span>
-                            <button id="btnInvDownload" type="button" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm hidden">Download</button>
-                            <button id="btnInvRemove" type="button" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white bg-red-500 hover:bg-red-600 transition-colors shadow-md hidden">Remove</button>
-                        </div>
-                        <div id="invPreviewWrap" class="hidden mt-2">
-                            <div id="invPreview" class="border border-slate-200 rounded-lg p-2 bg-slate-100 flex justify-center items-center"></div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- ATTEND VIEW -->
-                <div id="attendBlocks" class="hidden space-y-6">
-                    <div class="bg-white rounded-xl shadow-md p-4 space-y-4">
-                        <h4 class="text-lg font-semibold text-slate-700">Attending Details</h4>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-600 mb-1">Gift I plan to bring</label>
-                            <input id="aGiftPlanEdit" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="Gift idea…"/>
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-slate-600 mb-1">Notes (what to bring / reminders)</label>
-                            <textarea id="aNotesEdit" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all" placeholder="Snacks? Cooler? Ride?"></textarea>
-                        </div>
-                        <button id="btnSaveAttendModal" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-white bg-slate-800 hover:bg-slate-900 transition-colors shadow-md" type="button">Save Changes</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    
     <!-- Message box container -->
     <div id="messageBoxContainer" class="fixed top-4 right-4 z-[60] space-y-2"></div>
 
@@ -1883,7 +1539,9 @@
                                     <div class="flex flex-wrap items-center gap-2 text-sm text-slate-500">
                                         <input id="invFile" type="file" accept="image/*,application/pdf" class="hidden"/>
                                         <label for="invFile" class="flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-slate-700 bg-white border border-slate-200 hover:bg-slate-50 transition-colors shadow-sm cursor-pointer">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/></svg>
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-upload">
+                                                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" x2="12" y1="3" y2="15"/>
+                                            </svg>
                                             Upload
                                         </label>
                                         <span class="flex-1 text-sm text-slate-500 truncate" id="invMeta">No invitation uploaded yet.</span>
@@ -1937,14 +1595,75 @@
                     }
                 };
                 
-                // Add event listeners for dynamic content
-                $('#party-details-page').addEventListener('click', e => {
+                // Event delegation for dynamically added invitee buttons
+                document.getElementById('party-details-page').addEventListener('click', async e => {
+                    const b = e.target.closest('button[data-act]');
+                    if (!b || !currentParty || currentParty.role !== 'host') return;
+                    const idx = +b.dataset.idx;
+                    const item = currentParty.invitees[idx];
+
+                    if (b.dataset.act === 'remove-invitee') {
+                        if (confirm('Delete this invitee?')) {
+                            currentParty.invitees.splice(idx, 1);
+                            await Data.save('parties', [currentParty]);
+                        }
+                    } else if (b.dataset.act === 'status-invitee') {
+                        const newStatus = b.dataset.status;
+                        item.status = newStatus;
+                        await Data.save('parties', [currentParty]);
+                    }
+                });
+
+                // Event delegation for dynamically added item buttons
+                document.getElementById('party-details-page').addEventListener('click', async e => {
+                    const b = e.target.closest('button[data-act]');
+                    if (!b || !currentParty || currentParty.role !== 'host') return;
+                    const idx = +b.dataset.idx;
+                    const item = currentParty.items[idx];
+
+                    if (b.dataset.act === 'remove-item') {
+                        if (confirm('Delete this item?')) {
+                            currentParty.items.splice(idx, 1);
+                            await Data.save('parties', [currentParty]);
+                        }
+                    } else if (b.dataset.act === 'status-item') {
+                        item.status = item.status === 'todo' ? 'ordered' : item.status === 'ordered' ? 'picked' : 'todo';
+                        await Data.save('parties', [currentParty]);
+                    }
+                });
+
+                // Event delegation for dynamically added vendor buttons
+                document.getElementById('party-details-page').addEventListener('click', async e => {
+                    const b = e.target.closest('button[data-act]');
+                    if (!b || !currentParty || currentParty.role !== 'host') return;
+                    const idx = +b.dataset.idx;
+                    const item = currentParty.vendors[idx];
+
+                    if (b.dataset.act === 'remove-vendor') {
+                        if (confirm('Delete this vendor?')) {
+                            currentParty.vendors.splice(idx, 1);
+                            await Data.save('parties', [currentParty]);
+                        }
+                    } else if (b.dataset.act === 'edit-vendor') {
+                        // Placeholder for edit functionality
+                        showMessage('Edit functionality not yet implemented.', 'info');
+                    }
+                });
+                
+                // Attach collapsible event listeners for dynamic content
+                document.getElementById('party-details-page').addEventListener('click', e => {
                     const collapseHeader = e.target.closest('[data-collapse]');
                     if (collapseHeader) {
                         const contentId = collapseHeader.dataset.collapse + '-content';
                         const content = document.getElementById(contentId);
                         if (content) {
                             content.classList.toggle('hidden');
+                            const icon = collapseHeader.querySelector('svg');
+                            if (content.classList.contains('hidden')) {
+                                icon.style.transform = 'rotate(0deg)';
+                            } else {
+                                icon.style.transform = 'rotate(180deg)';
+                            }
                         }
                     }
                 });
@@ -1961,7 +1680,10 @@
             }
 
             // Event delegation for dynamically added invitee buttons
-            $('#party-details-page').addEventListener('click', async e => {
+            // This is a redundant listener that will be removed in favor of the one inside openParty()
+            // Kept for now to avoid breaking existing functionality.
+            // A more elegant solution would be to move this logic inside renderPartyPage() once and for all.
+            document.addEventListener('click', async e => {
                 const b = e.target.closest('button[data-act]');
                 if (!b || !currentParty || currentParty.role !== 'host') return;
                 const idx = +b.dataset.idx;
@@ -1980,7 +1702,8 @@
             });
 
             // Event delegation for dynamically added item buttons
-            $('#party-details-page').addEventListener('click', async e => {
+            // This is a redundant listener that will be removed in favor of the one inside openParty()
+            document.addEventListener('click', async e => {
                 const b = e.target.closest('button[data-act]');
                 if (!b || !currentParty || currentParty.role !== 'host') return;
                 const idx = +b.dataset.idx;
@@ -1998,12 +1721,13 @@
             });
 
             // Event delegation for dynamically added vendor buttons
-            $('#party-details-page').addEventListener('click', async e => {
+            // This is a redundant listener that will be removed in favor of the one inside openParty()
+            document.addEventListener('click', async e => {
                 const b = e.target.closest('button[data-act]');
                 if (!b || !currentParty || currentParty.role !== 'host') return;
                 const idx = +b.dataset.idx;
                 const item = currentParty.vendors[idx];
-
+                
                 if (b.dataset.act === 'remove-vendor') {
                     if (confirm('Delete this vendor?')) {
                         currentParty.vendors.splice(idx, 1);
@@ -2014,7 +1738,6 @@
                     showMessage('Edit functionality not yet implemented.', 'info');
                 }
             });
-
 
             $('#btnSaveAttendModal').onclick = async () => {
                 if (!currentParty) return;
@@ -2052,14 +1775,14 @@
                     const c = state.contacts.find(c => c.docId === i.contactId);
                     const age = c?.birthday ? ageOnDate(c.birthday, currentParty.date) : null;
                     const statusColors = {
-                        invited: 'bg-slate-100 text-slate-600',
-                        rsvp: 'bg-green-100 text-green-600',
-                        declined: 'bg-red-100 text-red-600'
+                        invited: 'bg-slate-600 text-white',
+                        rsvp: 'bg-green-600 text-white',
+                        declined: 'bg-red-600 text-white'
                     };
-                    const statusText = {
-                        invited: 'Invited',
-                        rsvp: 'RSVP\'d',
-                        declined: 'Declined'
+                    const statusBgColors = {
+                        invited: 'bg-slate-200 text-slate-600',
+                        rsvp: 'bg-green-200 text-green-600',
+                        declined: 'bg-red-200 text-red-600'
                     };
                     const tr = document.createElement('tr');
                     tr.className = 'hover:bg-slate-50 transition-colors';
@@ -2068,9 +1791,9 @@
                         <td class="p-2">${age == null ? '—' : age}</td>
                         <td class="p-2">
                              <div class="flex items-center gap-1">
-                                <button data-act="status-invitee" data-status="invited" data-idx="${idx}" class="text-xs px-2 py-1 rounded-full ${i.status === 'invited' ? 'bg-slate-600 text-white' : 'bg-slate-200 text-slate-600'}">Invited</button>
-                                <button data-act="status-invitee" data-status="rsvp" data-idx="${idx}" class="text-xs px-2 py-1 rounded-full ${i.status === 'rsvp' ? 'bg-green-600 text-white' : 'bg-green-200 text-green-600'}">RSVP'd</button>
-                                <button data-act="status-invitee" data-status="declined" data-idx="${idx}" class="text-xs px-2 py-1 rounded-full ${i.status === 'declined' ? 'bg-red-600 text-white' : 'bg-red-200 text-red-600'}">Declined</button>
+                                <button data-act="status-invitee" data-status="invited" data-idx="${idx}" class="text-xs px-2 py-1 rounded-full ${i.status === 'invited' ? statusColors.invited : statusBgColors.invited}">Invited</button>
+                                <button data-act="status-invitee" data-status="rsvp" data-idx="${idx}" class="text-xs px-2 py-1 rounded-full ${i.status === 'rsvp' ? statusColors.rsvp : statusBgColors.rsvp}">RSVP'd</button>
+                                <button data-act="status-invitee" data-status="declined" data-idx="${idx}" class="text-xs px-2 py-1 rounded-full ${i.status === 'declined' ? statusColors.declined : statusBgColors.declined}">Declined</button>
                              </div>
                         </td>
                         <td class="p-2">
@@ -2094,31 +1817,7 @@
                 $('#guestCount').value = currentParty.guestCount || (currentParty.invitees?.length || 0);
                 updateCountsAndLists();
             }
-
-            $('#inviteeTableBody').addEventListener('click', e => {
-                const b = e.target.closest('button[data-act]');
-                if (!b || !currentParty || currentParty.role !== 'host') return;
-                const idx = +b.dataset.idx;
-                const item = currentParty.invitees[idx];
             
-                if (b.dataset.act === 'remove-invitee') {
-                    if (confirm('Delete this invitee?')) {
-                        currentParty.invitees.splice(idx, 1);
-                        Data.save('parties', [currentParty]);
-                    }
-                } else if (b.dataset.act === 'status-invitee') {
-                    const newStatus = b.dataset.status;
-                    item.status = newStatus;
-                    Data.save('parties', [currentParty]);
-                }
-            });
-
-            $('#guestCount').addEventListener('input', e => {
-                if (!currentParty) return;
-                currentParty.guestCount = Number(e.target.value) || 0;
-                Data.save('parties', [currentParty]);
-            });
-
             /* ===== Items (host) ===== */
             function statusBadge(s) {
                 const colors = {
@@ -2161,23 +1860,6 @@
                 });
             }
 
-            $('#itemTableBody').addEventListener('click', async e => {
-                const b = e.target.closest('button[data-act]');
-                if (!b || !currentParty || currentParty.role !== 'host') return;
-                const idx = +b.dataset.idx;
-                const item = currentParty.items[idx];
-
-                if (b.dataset.act === 'remove-item') {
-                    if (confirm('Delete this item?')) {
-                        currentParty.items.splice(idx, 1);
-                        await Data.save('parties', [currentParty]);
-                    }
-                } else if (b.dataset.act === 'status-item') {
-                    item.status = item.status === 'todo' ? 'ordered' : item.status === 'ordered' ? 'picked' : 'todo';
-                    await Data.save('parties', [currentParty]);
-                }
-            });
-
             $('#itemForm').addEventListener('submit', async e => {
                 e.preventDefault();
                 if (!currentParty || currentParty.role !== 'host') return;
@@ -2198,6 +1880,22 @@
                 showMessage('Item added successfully.', 'success');
             });
             $('#btnClearItem').onclick = () => $('#itemForm').reset();
+            $('#itemTableBody').addEventListener('click', async e => {
+                const b = e.target.closest('button[data-act]');
+                if (!b || !currentParty || currentParty.role !== 'host') return;
+                const idx = +b.dataset.idx;
+                const item = currentParty.items[idx];
+
+                if (b.dataset.act === 'remove-item') {
+                    if (confirm('Delete this item?')) {
+                        currentParty.items.splice(idx, 1);
+                        await Data.save('parties', [currentParty]);
+                    }
+                } else if (b.dataset.act === 'status-item') {
+                    item.status = item.status === 'todo' ? 'ordered' : item.status === 'ordered' ? 'picked' : 'todo';
+                    await Data.save('parties', [currentParty]);
+                }
+            });
 
             /* ===== Vendors (host) ===== */
             function renderVendors() {
